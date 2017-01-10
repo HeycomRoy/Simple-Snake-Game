@@ -3,29 +3,40 @@
 <head>
 	<meta charset="utf-8">
 	<title>Snake Game</title>
+	<!-- <script type="text/javascript">
+		alert("does this script works?");
+	</script> -->
+
 </head>
 <body>
+
+<!-- <h1>snake Game</h1> -->
 <script type="text/javascript">
+
+// alert("why?? is not working");
 	//constants
 	var COLS=26, ROWS=26;
 	//IDs
 	var EMPTY=0, SNAKE=1, FRUIT=2;
+	//Directions
+	var LEFT=0, UP=1, RIGHT=2, DOWN=3;
 
 	//canvas
-	var grid={
-		width: null;
-		height: null;
-		_grid: null;
+	var grid = {
+
+		width: null,
+		height: null,
+		_grid: null,
 
 		init: function(d, c, r){
 			this.width = c;
 			this.height = r;
 
 			this._grid = [];
-			for (var i = 0; i < c; i++) {
+			for (var x = 0; x < c; x++) {
 				this._grid.push([]);
-				for (var j=0; j < r; j++) {
-					this._grid[i].push(d);
+				for (var y=0; y < r; y++) {
+					this._grid[x].push(d);
 				}
 			}
 		},
@@ -42,8 +53,9 @@
 
 	//snake object
 	var snake={
-		direction: null;
-		_queue: null;
+		direction: null,
+		last: null,
+		_queue: null,
 
 		init: function(d, x, y){
 			this.direction = d;
@@ -55,7 +67,7 @@
 		insert: function(x, y){
 			this._queue.unshift({x:x, y:y});
 			this.last = this._queue[0];
-		}
+		},
 
 		remove: function(){
 			return this._queue.pop();
@@ -65,34 +77,76 @@
 	//set furit on the tile
 	function setFood(){
 		var empty = [];
-		for(var i = 0; i<grid.width; i++){
-			for(var j = 0; j< grid.height; j++){
+		for(var x = 0; x<grid.width; x++){
+			for(var y = 0; y< grid.height; y++){
 				if(grid.get(x, y) === EMPTY){
 					empty.push({x:x, y:y});
 				}
 			}
 		}
-		var ranNum = Math.floor(Math.random()*empty.length);
-		var randpos= empty[ranNum];
+		
+		var randpos= empty[Math.floor(Math.random()*empty.length)];
+		grid.set(FRUIT, randpos.x, randpos.y);
 	}
 
-	function main(){
+	//Game objects
+	var canvas, ctx, keystate, frames;
 
+	function main(){
+		canvas = document.createElement("canvas");
+		canvas.width = COLS*20;
+		canvas.height = ROWS*20;
+		ctx = canvas.getContext("2d");
+		document.body.appendChild(canvas);
+
+		frames = 0;
+		keystate = {};
+
+		init();
+		loop();
 	}
 
 	function init(){
+		grid.init(EMPTY, COLS, ROWS);
 
+		var sp = {x:Math.floor(COLS/2), y:ROWS-1};
+		snake.init(UP, sp.x, sp.y);
+		grid.set(SNAKE, sp.x, sp.y);
+
+		setFood();
 	}
 
 	function loop(){
+		update();
+		draw();
 
+		window.requestAnimationFrame(loop, canvas);
 	}
 
 	function update(){
-
+		frames++;
 	}
 
 	function draw(){
+		var tw = canvas.width/grid.width;
+		var th = canvas.height/grid.height;
+
+		for(var x = 0; x<grid.width; x++){
+			for(var y = 0; y< grid.height; y++){
+				switch(grid.get(x, y)){
+					case EMPTY:
+						ctx.fillStyle = "#fff";
+						break;
+					case SNAKE:
+						ctx.fillStyle = "#0ff";
+						break;
+					case FRUIT:
+						ctx.fillStyle = "#f00";
+						break;
+				}
+				ctx.fillRect(x*tw, y*th, tw, th);
+			}
+		}
 
 	}
 
